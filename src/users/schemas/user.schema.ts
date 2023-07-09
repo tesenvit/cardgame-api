@@ -7,7 +7,7 @@ export type UserDocument = HydratedDocument<User>
 export class User {
 
     @Prop()
-    name: string
+    username: string
 
     @Prop()
     password: string
