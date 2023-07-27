@@ -7,7 +7,7 @@ import {
     Body,
     Res,
     Param,
-    HttpStatus
+    HttpStatus,
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -23,7 +23,8 @@ export class UsersController {
         const user = await this.userService.get(userId)
 
         return response.status(HttpStatus.OK).json({
-            message: 'Student found successfully',user
+            message: 'Student found successfully',
+            user,
         })
     }
 
@@ -32,7 +33,7 @@ export class UsersController {
         const data = await this.userService.getAll()
 
         return response.status(HttpStatus.OK).json({
-            data
+            data,
         })
     }
 
@@ -55,7 +56,7 @@ export class UsersController {
 
         return response.status(HttpStatus.OK).json({
             message: 'User has been successfully updated',
-            user
+            user,
         })
     }
 
@@ -64,7 +65,7 @@ export class UsersController {
         await this.userService.delete(userId)
 
         return response.status(HttpStatus.OK).json({
-            message: 'User deleted successfully'
+            message: 'User deleted successfully',
         })
     }
 }

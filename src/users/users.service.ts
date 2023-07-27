@@ -1,17 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
-import { IUser } from './interfaces/user.interface'
+import * as bcrypt from 'bcrypt'
+
+import { IUser, IUserWithCredentials } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserDocument } from './schemas/user.schema'
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel('User') private userModel: Model<IUser>) {}
 
-    async get(userId: string): Promise<IUser> {
-        const user = await this.userModel.findById(userId).exec()
+    static readonly EMAIL_FIELD = 'email'
+    static readonly ID_FIELD = 'id'
 
+    constructor(
+        @InjectModel('User') private userModel: Model<UserDocument>
+    ) {}
+
+    async get(id: string, field = UsersService.ID_FIELD): Promise<IUserWithCredentials> {
+        const user = (field === UsersService.EMAIL_FIELD) ? await this.getByEmail(id) : await this.getById(id)
         if (!user) {
             throw new NotFoundException()
         }
@@ -24,9 +32,14 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<IUser> {
-        // createdAt: new Date()
-        const newUser = new this.userModel(createUserDto)
-        return newUser.save()
+        const user = new this.userModel(createUserDto)
+
+        const salt = await bcrypt.genSalt()
+        user.password = await bcrypt.hash(user.password, salt)
+
+        user.createdAt = new Date().getTime()
+
+        return user.save()
     }
 
     async update(userId: string, updateUserDto: UpdateUserDto): Promise<IUser> {
@@ -46,5 +59,13 @@ export class UsersService {
             throw new NotFoundException()
         }
         return deletedUser
+    }
+
+    private async getById(userId: string): Promise<IUserWithCredentials> {
+        return this.userModel.findById(userId).exec()
+    }
+
+    private async getByEmail(email: string): Promise<IUserWithCredentials> {
+        return this.userModel.findOne({email}).exec()
     }
 }
