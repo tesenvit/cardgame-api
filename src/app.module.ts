@@ -9,11 +9,11 @@ import { AuthModule } from './auth/auth.module'
     imports: [
         ConfigModule.forRoot({
             envFilePath: `.${process.env.NODE_ENV}.env`,
-            isGlobal: true
+            isGlobal: true,
         }),
         MongooseModule.forRoot(process.env.MONGO_URI),
         UsersModule,
-        AuthModule
+        AuthModule,
     ],
     controllers: [],
     providers: [],
