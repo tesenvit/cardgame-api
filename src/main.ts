@@ -2,16 +2,16 @@ import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
 
 import { AppModule } from './modules/app.module'
-import { AppValidationPipe } from './utils/pipes/app-validation.pipe'
+import init from './init'
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule)
     const configService = app.get(ConfigService)
     const PORT = configService.get<number>('port')
 
-    app.useGlobalPipes(new AppValidationPipe())
+    init(app)
 
     await app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
 }
 
-bootstrap()
+bootstrap().catch(e => console.log(`The server did not start. Error: ${e.message}`))

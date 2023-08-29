@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import * as bcrypt from 'bcrypt'
@@ -7,6 +7,7 @@ import { IUser, IUserWithCredentials } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserDocument } from './schemas/user.schema'
+import {ValidateException} from '../../utils/exceptions/validate.exception'
 
 @Injectable()
 export class UsersService {
@@ -34,7 +35,7 @@ export class UsersService {
     async create(createUserDto: CreateUserDto): Promise<IUser> {
         const doesUserExist = await this.getByEmail(createUserDto.email)
         if (doesUserExist) {
-            throw new BadRequestException('User with this email address exists')
+            throw new ValidateException({[UsersService.EMAIL_FIELD]: 'email address already exists'})
         }
 
         const user = new this.userModel(createUserDto)
@@ -61,6 +62,7 @@ export class UsersService {
         if (!deletedUser) {
             throw new NotFoundException()
         }
+
         return deletedUser
     }
 

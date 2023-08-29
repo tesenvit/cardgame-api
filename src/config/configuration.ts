@@ -1,4 +1,4 @@
-export default () => ({
+export default (): object => ({
     port: parseInt(process.env.PORT, 10) || 5000,
     db: {
         mongo: {

@@ -7,69 +7,67 @@ import {
     Body,
     Res,
     Param,
-    HttpStatus,
     UseGuards,
 } from '@nestjs/common'
+import { Response } from 'express'
 
+import { BaseController } from '../base.controller'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 
 @Controller('users')
-export class UsersController {
+export class UsersController extends BaseController {
 
-    constructor(private readonly userService: UsersService) {}
+    constructor(
+        private readonly userService: UsersService
+    ) {
+        super()
+    }
 
     @Get('/:id')
-    public async getUser(@Res() response, @Param('id') userId: string) {
+    @UseGuards(JwtAuthGuard)
+    async get(
+        @Res() response,
+        @Param('id') userId: string
+    ): Promise<Response> {
         const user = await this.userService.get(userId)
-
-        return response.status(HttpStatus.OK).json({
-            message: 'Student found successfully',
-            user,
-        })
+        return this.result(response, user)
     }
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    public async getAll(@Res() response) {
-        const data = await this.userService.getAll()
-
-        return response.status(HttpStatus.OK).json({
-            data,
-        })
+    async getAll(@Res() response): Promise<Response> {
+        const users = await this.userService.getAll()
+        return this.result(response, users)
     }
 
     @Post()
-    public async createUser(@Res() response, @Body() createUserDto: CreateUserDto) {
-        await this.userService.create(createUserDto)
-
-        return response.status(HttpStatus.CREATED).json({
-            message: 'User has been created successfully',
-        })
+    async create(
+        @Res() response,
+        @Body() createUserDto: CreateUserDto
+    ) {
+        const user = await this.userService.create(createUserDto)
+        return this.result(response, user)
     }
 
     @Put('/:id')
-    public async updateUser(
+    async updateUser(
         @Res() response,
         @Param('id') userId: string,
         @Body() updateUserDto: UpdateUserDto
-    ) {
+    ): Promise<Response> {
         const user = await this.userService.update(userId, updateUserDto)
-
-        return response.status(HttpStatus.OK).json({
-            message: 'User has been successfully updated',
-            user,
-        })
+        return this.result(response, user)
     }
 
     @Delete('/:id')
-    public async deleteUser(@Res() response, @Param('id') userId: string) {
+    async deleteUser(
+        @Res() response,
+        @Param('id') userId: string
+    ): Promise<Response> {
         await this.userService.delete(userId)
-
-        return response.status(HttpStatus.OK).json({
-            message: 'User deleted successfully',
-        })
+        return this.success(response)
     }
 }

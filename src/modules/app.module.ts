@@ -11,7 +11,7 @@ import { AuthModule } from './auth/auth.module'
         ConfigModule.forRoot({
             load: [configuration],
             isGlobal: true,
-            cache: true,
+            // cache: true,
         }),
         MongooseModule.forRootAsync({
             inject: [ConfigService],
