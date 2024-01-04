@@ -6,8 +6,8 @@ import {
     VersioningType,
 } from '@nestjs/common'
 
-import { HttpExceptionFilter } from './utils/exceptions/http-exception.filter'
-import { ValidateException } from './utils/exceptions/validate.exception'
+import { HttpExceptionFilter } from './common/filters/http-exception.filter'
+import { ValidateException } from './common/exceptions/validate.exception'
 
 export default (app: INestApplication): void => {
 

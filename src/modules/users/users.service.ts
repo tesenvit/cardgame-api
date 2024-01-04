@@ -6,8 +6,8 @@ import * as bcrypt from 'bcrypt'
 import { IUser, IUserWithCredentials } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { UserDocument } from './schemas/user.schema'
-import { ValidateException } from '../../utils/exceptions/validate.exception'
+import { UserDocument } from './models/user.schema'
+import { ValidateException } from '../../common/exceptions/validate.exception'
 
 @Injectable()
 export class UsersService {
@@ -19,8 +19,17 @@ export class UsersService {
         @InjectModel('User') private userModel: Model<UserDocument>
     ) {}
 
-    async get(id: string, field = UsersService.ID_FIELD): Promise<IUserWithCredentials> {
-        const user = (field === UsersService.EMAIL_FIELD) ? await this.getByEmail(id) : await this.getById(id)
+    async getByEmail(email: string): Promise<IUserWithCredentials> {
+        const user = await this.getUserByEmail(email)
+        if (!user) {
+            throw new NotFoundException()
+        }
+
+        return user
+    }
+
+    async getById(id: string): Promise<IUserWithCredentials> {
+        const user = await this.getUserById(id)
         if (!user) {
             throw new NotFoundException()
         }
@@ -33,7 +42,7 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<IUser> {
-        const doesUserExist = await this.getByEmail(createUserDto.email)
+        const doesUserExist = await this.getUserByEmail(createUserDto.email)
         if (doesUserExist) {
             throw new ValidateException({[UsersService.EMAIL_FIELD]: 'email address already exists'})
         }
@@ -41,13 +50,12 @@ export class UsersService {
         const user = new this.userModel(createUserDto)
         const salt = await bcrypt.genSalt()
         user.password = await bcrypt.hash(user.password, salt)
-        user.createdAt = new Date().getTime()
 
         return user.save()
     }
 
-    async update(userId: string, updateUserDto: UpdateUserDto): Promise<IUser> {
-        const existingUser = await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true })
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<IUser> {
+        const existingUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true })
 
         if (!existingUser) {
             throw new NotFoundException()
@@ -56,7 +64,14 @@ export class UsersService {
         return existingUser
     }
 
-    async delete(userId: string): Promise<IUser> {
+    async delete(userId: string) {
+        // try {
+        //     await this.userModel.findByIdAndDelete(userId)
+        // } catch (e) {
+        //     throw new NotFoundException()
+        // }
+
+
         const deletedUser = await this.userModel.findByIdAndDelete(userId)
 
         if (!deletedUser) {
@@ -66,11 +81,11 @@ export class UsersService {
         return deletedUser
     }
 
-    private async getById(userId: string): Promise<IUserWithCredentials> {
-        return this.userModel.findById(userId).exec()
+    private async getUserByEmail(email: string): Promise<IUserWithCredentials | null> {
+        return this.userModel.findOne({email}).exec()
     }
 
-    private async getByEmail(email: string): Promise<IUserWithCredentials> {
-        return this.userModel.findOne({email}).exec()
+    private async getUserById(id: string): Promise<IUserWithCredentials | null> {
+        return this.userModel.findOne({_id: id}).exec()
     }
 }

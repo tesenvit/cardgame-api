@@ -1,18 +1,15 @@
 import {
     IsNotEmpty,
     IsEmail,
-    IsArray,
-    IsNumber,
+    IsStrongPassword,
 } from 'class-validator'
 
-export class LocalAuthDto {
+export class LoginAuthDto {
 
-    @IsNotEmpty()
     @IsEmail()
-    @IsNumber()
+    @IsNotEmpty()
     readonly email: string
 
     @IsNotEmpty()
-    @IsArray()
     readonly password: string
 }

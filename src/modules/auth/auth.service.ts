@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 
-import { UsersService } from '../users/users.service'
-import { IUser, IUserWithCredentials } from '../users/interfaces/user.interface'
 import { IToken } from './interfaces/token.interface'
+import { LoginAuthDto } from './dto/login-auth.dto'
+import { UsersService } from '../users/users.service'
+import { CreateUserDto } from '../users/dto/create-user.dto'
+import { IUser } from '../users/interfaces/user.interface'
 
 @Injectable()
 export class AuthService {
@@ -15,7 +17,7 @@ export class AuthService {
     ) {}
 
     public async validateUser(email: string, password: string): Promise<IUser | null> {
-        const user = await this.usersService.get(email, UsersService.EMAIL_FIELD)
+        const user = await this.usersService.getByEmail(email)
         const isMatch = await bcrypt.compare(password, user.password)
         if (isMatch) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,10 +28,10 @@ export class AuthService {
         return null
     }
 
-    async login(user: IUser): Promise<IToken> {
+    async login(loginAuthDto: LoginAuthDto): Promise<IToken> {
         const payload = {
-            email: user.email,
-            sub: user.email,
+            email: loginAuthDto.email,
+            sub: loginAuthDto.email,
         }
 
         return {
@@ -37,7 +39,7 @@ export class AuthService {
         }
     }
 
-    async register(user: IUserWithCredentials): Promise<void> {
-        await this.usersService.create(user)
+    async register(createUserDto: CreateUserDto): Promise<void> {
+        await this.usersService.create(createUserDto)
     }
 }

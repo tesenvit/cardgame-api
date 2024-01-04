@@ -3,7 +3,9 @@ import { HydratedDocument } from 'mongoose'
 
 export type UserDocument = HydratedDocument<User>
 
-@Schema()
+@Schema({
+    timestamps: true,
+})
 export class User {
 
     @Prop({
@@ -21,11 +23,6 @@ export class User {
         unique: true,
     })
     email: string
-
-    @Prop({
-        required: true,
-    })
-    createdAt: number
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

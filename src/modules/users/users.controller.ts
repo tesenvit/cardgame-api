@@ -32,13 +32,15 @@ export class UsersController extends BaseController {
         @Res() response,
         @Param('id') userId: string
     ): Promise<Response> {
-        const user = await this.userService.get(userId)
+        const user = await this.userService.getById(userId)
         return this.result(response, user)
     }
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    async getAll(@Res() response): Promise<Response> {
+    async getAll(
+        @Res() response
+    ): Promise<Response> {
         const users = await this.userService.getAll()
         return this.result(response, users)
     }
