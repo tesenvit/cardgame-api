@@ -21,6 +21,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     "@typescript-eslint/semi": ["error", "never"],
-    "@typescript-eslint/comma-dangle": ["error", "always-multiline"]
+    "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+    "object-curly-spacing": ["error", "always"]
   },
 };

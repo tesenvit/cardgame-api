@@ -38,13 +38,13 @@ export class UsersService {
     }
 
     async getAll(): Promise<IUser[]> {
-        return this.userModel.find().exec()
+        return this.userModel.find().lean()
     }
 
     async create(createUserDto: CreateUserDto): Promise<IUser> {
         const doesUserExist = await this.getUserByEmail(createUserDto.email)
         if (doesUserExist) {
-            throw new ValidateException({[UsersService.EMAIL_FIELD]: 'email address already exists'})
+            throw new ValidateException({ [UsersService.EMAIL_FIELD]: 'email address already exists' })
         }
 
         const user = new this.userModel(createUserDto)
@@ -64,28 +64,19 @@ export class UsersService {
         return existingUser
     }
 
-    async delete(userId: string) {
-        // try {
-        //     await this.userModel.findByIdAndDelete(userId)
-        // } catch (e) {
-        //     throw new NotFoundException()
-        // }
-
-
+    async delete(userId: string): Promise<void> {
         const deletedUser = await this.userModel.findByIdAndDelete(userId)
 
         if (!deletedUser) {
             throw new NotFoundException()
         }
-
-        return deletedUser
     }
 
     private async getUserByEmail(email: string): Promise<IUserWithCredentials | null> {
-        return this.userModel.findOne({email}).exec()
+        return this.userModel.findOne({ email }).lean()
     }
 
     private async getUserById(id: string): Promise<IUserWithCredentials | null> {
-        return this.userModel.findOne({_id: id}).exec()
+        return this.userModel.findOne({ _id: id }).lean()
     }
 }
