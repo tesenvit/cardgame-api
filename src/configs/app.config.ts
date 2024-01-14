@@ -4,6 +4,9 @@ export default (): object => ({
         mongo: {
             uri: process.env.MONGO_URI || 'mongodb://localhost/cardgame',
         },
+        postgres: {
+            url: process.env.POSTGRES_URL || '',
+        },
     },
     jwt: {
         secret: process.env.JWT_SECRET || 'secret',

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { MongooseModule } from '@nestjs/mongoose'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 
 import configuration from '../configs/app.config'
@@ -14,10 +14,15 @@ import { GamesModule } from './games/games.module'
             isGlobal: true,
             // cache: true,
         }),
-        MongooseModule.forRootAsync({
+        TypeOrmModule.forRootAsync({
             inject: [ConfigService],
             useFactory: async (configService: ConfigService) => ({
-                uri: configService.get<string>('db.mongo.uri'),
+                type: 'postgres',
+                url: configService.get<string>('db.postgres.url'),
+                autoLoadEntities: true,
+
+                // TODO only for dev
+                synchronize: true,
             }),
         }),
         UsersModule,

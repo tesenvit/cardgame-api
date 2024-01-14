@@ -30,9 +30,9 @@ export class UsersController extends BaseController {
     @UseGuards(JwtAuthGuard)
     async get(
         @Res() response,
-        @Param('id') userId: string
+        @Param('id') id: number
     ): Promise<Response> {
-        const user = await this.userService.getById(userId)
+        const user = await this.userService.getById(Number(id))
         return this.result(response, user)
     }
 
@@ -55,21 +55,21 @@ export class UsersController extends BaseController {
     }
 
     @Put('/:id')
-    async updateUser(
+    async update(
         @Res() response,
         @Param('id') userId: string,
         @Body() updateUserDto: UpdateUserDto
     ): Promise<Response> {
-        const user = await this.userService.update(userId, updateUserDto)
+        const user = await this.userService.update(Number(userId), updateUserDto)
         return this.result(response, user)
     }
 
     @Delete('/:id')
-    async deleteUser(
+    async delete(
         @Res() response,
-        @Param('id') userId: string
+        @Param('id') id: number
     ): Promise<Response> {
-        await this.userService.delete(userId)
+        await this.userService.delete(Number(id))
         return this.success(response)
     }
 }

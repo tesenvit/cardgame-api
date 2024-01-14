@@ -1,10 +1,7 @@
 export interface IUser  {
+
+    readonly id: number
     readonly username: string
     readonly email: string
+    readonly password?: string
 }
-
-export interface IUserCredentials {
-    readonly password: string
-}
-
-export interface IUserWithCredentials extends IUser, IUserCredentials {}

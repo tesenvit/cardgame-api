@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { InjectModel } from '@nestjs/mongoose'
-import { Model } from 'mongoose'
+import { Repository } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
 
-import { IUser, IUserWithCredentials } from './interfaces/user.interface'
+import { IUser } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { UserDocument } from './models/user.schema'
 import { ValidateException } from '../../common/exceptions/validate.exception'
+
+import { User } from './models/user.entity'
 
 @Injectable()
 export class UsersService {
@@ -16,11 +17,13 @@ export class UsersService {
     static readonly ID_FIELD = 'id'
 
     constructor(
-        @InjectModel('User') private userModel: Model<UserDocument>
+        @InjectRepository(User)
+        private usersRepository: Repository<User>,
     ) {}
 
-    async getByEmail(email: string): Promise<IUserWithCredentials> {
-        const user = await this.getUserByEmail(email)
+    async getByEmail(email: string, includeHidden = false): Promise<IUser> {
+        const user = this.getByField(UsersService.EMAIL_FIELD, email, includeHidden)
+
         if (!user) {
             throw new NotFoundException()
         }
@@ -28,8 +31,9 @@ export class UsersService {
         return user
     }
 
-    async getById(id: string): Promise<IUserWithCredentials> {
-        const user = await this.getUserById(id)
+    async getById(id: number, includeHidden = false): Promise<IUser> {
+        const user = this.getByField(UsersService.ID_FIELD, id, includeHidden)
+
         if (!user) {
             throw new NotFoundException()
         }
@@ -38,45 +42,59 @@ export class UsersService {
     }
 
     async getAll(): Promise<IUser[]> {
-        return this.userModel.find().lean()
+        return this.usersRepository.find()
     }
 
     async create(createUserDto: CreateUserDto): Promise<IUser> {
-        const doesUserExist = await this.getUserByEmail(createUserDto.email)
+        const doesUserExist = await this.usersRepository.findOneBy({ email: createUserDto.email })
         if (doesUserExist) {
-            throw new ValidateException({ [UsersService.EMAIL_FIELD]: 'email address already exists' })
+            throw new ValidateException({ email: 'email address already exists' })
         }
 
-        const user = new this.userModel(createUserDto)
-        const salt = await bcrypt.genSalt()
-        user.password = await bcrypt.hash(user.password, salt)
+        const user = new User()
+        user.username =  createUserDto.username
+        user.password = await bcrypt.hash(createUserDto.password, await bcrypt.genSalt())
+        user.email = createUserDto.email
 
-        return user.save()
+        return await this.usersRepository.save(user)
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto): Promise<IUser> {
-        const existingUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true })
+    async update(id: number, updateUserDto: UpdateUserDto): Promise<IUser> {
+        const user: IUser = await this.usersRepository.findOneBy({ id })
 
-        if (!existingUser) {
+        if (!user) {
             throw new NotFoundException()
         }
 
-        return existingUser
+        await this.usersRepository.update(id, updateUserDto)
+
+        return await this.usersRepository.findOneBy({ id })
     }
 
-    async delete(userId: string): Promise<void> {
-        const deletedUser = await this.userModel.findByIdAndDelete(userId)
+    async delete(id: number): Promise<void> {
+        const deletedUser = await this.usersRepository.findOneBy({ id })
 
         if (!deletedUser) {
             throw new NotFoundException()
         }
+
+        await this.usersRepository.delete(id)
     }
 
-    private async getUserByEmail(email: string): Promise<IUserWithCredentials | null> {
-        return this.userModel.findOne({ email }).lean()
+    private async getByField(field: string, value: number | string, includeHidden = false) {
+        const options: any = {
+            where: {
+                [field]: value,
+            },
+        }
+        if (includeHidden) {
+            options.select = this.getAllRepositoryCols()
+        }
+
+        return this.usersRepository.findOne(options)
     }
 
-    private async getUserById(id: string): Promise<IUserWithCredentials | null> {
-        return this.userModel.findOne({ _id: id }).lean()
+    private getAllRepositoryCols<T>(): (keyof T)[] {
+        return (this.usersRepository.metadata.columns.map(col => col.propertyName) as (keyof T)[])
     }
 }
