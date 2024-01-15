@@ -3,8 +3,11 @@ import {
     Column,
     PrimaryGeneratedColumn,
     CreateDateColumn,
-    UpdateDateColumn, Repository,
+    UpdateDateColumn,
+    ManyToOne,
 } from 'typeorm'
+
+import { Game } from '../../games/models/game.entity'
 
 @Entity()
 export class User {
@@ -24,6 +27,9 @@ export class User {
         unique: true,
     })
     email: string
+
+    @ManyToOne(() => Game, game => game.users)
+    game: Game
 
     @CreateDateColumn()
     createdAt: Date

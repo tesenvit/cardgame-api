@@ -7,7 +7,6 @@ import { IUser } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { ValidateException } from '../../common/exceptions/validate.exception'
-
 import { User } from './models/user.entity'
 
 @Injectable()
@@ -23,7 +22,6 @@ export class UsersService {
 
     async getByEmail(email: string, includeHidden = false): Promise<IUser> {
         const user = this.getByField(UsersService.EMAIL_FIELD, email, includeHidden)
-
         if (!user) {
             throw new NotFoundException()
         }
@@ -31,9 +29,8 @@ export class UsersService {
         return user
     }
 
-    async getById(id: number, includeHidden = false): Promise<IUser> {
+    async getById(id: number, includeHidden = false): Promise<User> {
         const user = this.getByField(UsersService.ID_FIELD, id, includeHidden)
-
         if (!user) {
             throw new NotFoundException()
         }
@@ -60,8 +57,7 @@ export class UsersService {
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<IUser> {
-        const user: IUser = await this.usersRepository.findOneBy({ id })
-
+        const user = await this.usersRepository.findOneBy({ id })
         if (!user) {
             throw new NotFoundException()
         }
@@ -73,7 +69,6 @@ export class UsersService {
 
     async delete(id: number): Promise<void> {
         const deletedUser = await this.usersRepository.findOneBy({ id })
-
         if (!deletedUser) {
             throw new NotFoundException()
         }

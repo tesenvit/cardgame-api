@@ -17,10 +17,8 @@ export class GamesController extends BaseController {
     @UseGuards(JwtAuthGuard)
     async create(
         @Res() response,
-        @Req() request,
         @Body() createGameDto: CreateGameDto,
     ) {
-        console.log(request.user)
         const game = await this.gameService.create(createGameDto)
         return this.result(response, game)
     }
