@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 
 import { IToken } from './interfaces/token.interface'
-import { LoginAuthDto } from './dto/login-auth.dto'
 import { UsersService } from '../users/users.service'
 import { CreateUserDto } from '../users/dto/create-user.dto'
 import { IUser } from '../users/interfaces/user.interface'
@@ -13,27 +12,19 @@ export class AuthService {
 
     constructor(
         private usersService: UsersService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
     ) {}
 
     public async validateUser(email: string, password: string): Promise<IUser | null> {
         const user = await this.usersService.getByEmail(email, true)
-        const isMatch = await bcrypt.compare(password, user.password)
-        if (isMatch) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { password, ...result } = user
-            return result
-        }
-
-        return null
+        return user && await bcrypt.compare(password, user.password) ? user : null
     }
 
-    async login(loginAuthDto: LoginAuthDto): Promise<IToken> {
+    async login(user: IUser): Promise<IToken> {
         const payload = {
-            email: loginAuthDto.email,
-            sub: loginAuthDto.email,
+            sub: user.id,
+            email: user.email,
         }
-
         return {
             access_token: this.jwtService.sign(payload),
         }

@@ -2,12 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
+import { JwtService } from '@nestjs/jwt'
 
 import { IUser } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { ValidateException } from '../../common/exceptions/validate.exception'
 import { User } from './models/user.entity'
+import { AsyncLocalStorage } from 'async_hooks'
+import { AuthTokenStore } from '../als/interfaces/als.interface'
 
 @Injectable()
 export class UsersService {
@@ -18,6 +21,8 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
         private usersRepository: Repository<User>,
+        private readonly als: AsyncLocalStorage<AuthTokenStore>,
+        private jwtService: JwtService,
     ) {}
 
     async getByEmail(email: string, includeHidden = false): Promise<IUser> {
@@ -36,6 +41,17 @@ export class UsersService {
         }
 
         return user
+    }
+
+    async getCurrentUser(): Promise<User> {
+        const token = this.als.getStore().authUserToken
+        if (!token) {
+            throw new NotFoundException()
+        }
+
+        const userId = this.jwtService.decode(token).sub
+
+        return this.getById(userId)
     }
 
     async getAll(): Promise<IUser[]> {

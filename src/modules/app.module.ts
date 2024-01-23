@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 
@@ -6,6 +6,8 @@ import configuration from '../configs/app.config'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { GamesModule } from './games/games.module'
+import { AlsModule } from './als/als.module'
+import { AuthTokenMiddleware } from "../common/middlewares/auth-token.middleware";
 
 @Module({
     imports: [
@@ -20,11 +22,10 @@ import { GamesModule } from './games/games.module'
                 type: 'postgres',
                 url: configService.get<string>('db.postgres.url'),
                 autoLoadEntities: true,
-
-                // TODO only for dev
-                synchronize: true,
+                synchronize: true, // TODO only for dev
             }),
         }),
+        AlsModule,
         UsersModule,
         AuthModule,
         GamesModule,
@@ -32,4 +33,9 @@ import { GamesModule } from './games/games.module'
     controllers: [],
     providers: [],
 })
-export class AppModule {}
+
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(AuthTokenMiddleware).forRoutes('*')
+    }
+}

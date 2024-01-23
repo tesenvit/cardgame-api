@@ -6,15 +6,20 @@ import { GamesGateway } from './games.gateway'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from '../users/models/user.entity'
 import { Game } from './models/game.entity'
-import { UsersService } from '../users/users.service'
+import { UsersModule } from '../users/users.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Game, User])],
+  imports: [
+      TypeOrmModule.forFeature([
+          Game,
+          User,
+      ]),
+      UsersModule,
+  ],
   controllers: [GamesController],
   providers: [
       GamesService,
       GamesGateway,
-      UsersService,
   ],
 })
 export class GamesModule {}

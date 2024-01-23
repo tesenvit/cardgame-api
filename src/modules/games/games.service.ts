@@ -22,7 +22,7 @@ export class GamesService {
     ) {}
 
     async create(createGameDto: CreateGameDto) {
-        const user = await this.userService.getById(1)
+        const user = await this.userService.getCurrentUser()
 
         const game = new Game()
         game.title = createGameDto.title

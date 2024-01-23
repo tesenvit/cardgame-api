@@ -20,6 +20,6 @@ export class GamesController extends BaseController {
         @Body() createGameDto: CreateGameDto,
     ) {
         const game = await this.gameService.create(createGameDto)
-        return this.result(response, game)
+        return this.result(response, 'game')
     }
 }

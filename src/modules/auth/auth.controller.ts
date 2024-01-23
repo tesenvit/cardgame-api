@@ -3,13 +3,15 @@ import {
     Post,
     Body,
     Res,
+    Req,
+    UseGuards,
 } from '@nestjs/common'
 import { Response } from 'express'
 
 import { BaseController } from '../base.controller'
 import { AuthService } from './auth.service'
 import { CreateUserDto } from '../users/dto/create-user.dto'
-import { LoginAuthDto } from './dto/login-auth.dto'
+import { LocalAuthGuard } from './guards/local-auth.guard'
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -30,11 +32,14 @@ export class AuthController extends BaseController {
     }
 
     @Post('login')
+    @UseGuards(LocalAuthGuard)
     async login(
         @Res() response,
-        @Body() loginAuthDto: LoginAuthDto
+        @Req() request
     ): Promise<Response> {
-        const token = await this.authService.login(loginAuthDto)
+        console.log('START')
+        const token = await this.authService.login(request.user)
+        console.log('END')
         return this.result(response, token)
     }
 }

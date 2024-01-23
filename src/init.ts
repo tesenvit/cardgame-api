@@ -8,6 +8,7 @@ import {
 
 import { HttpExceptionFilter } from './common/filters/http-exception.filter'
 import { ValidateException } from './common/exceptions/validate.exception'
+import validationErrorHandler from './common/helpers/validation/validation-error-handler'
 
 export default (app: INestApplication): void => {
 
@@ -20,13 +21,7 @@ export default (app: INestApplication): void => {
 
     app.useGlobalPipes(new ValidationPipe({
         exceptionFactory: (validationErrors: ValidationError[] = []): HttpException => {
-            const errors = validationErrors.reduce((accumulator, error) => {
-                const firstErrorMessage = Object.values(error.constraints)[0]
-                accumulator[error.property] = firstErrorMessage.replace(`${error.property} `, '')
-                return accumulator
-            }, {})
-
-            return new ValidateException(errors)
+            return new ValidateException(validationErrorHandler(validationErrors))
         },
     }))
 
