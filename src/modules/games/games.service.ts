@@ -1,25 +1,26 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
 import { CreateGameDto } from './dto/create-game.dto'
-import { IGame } from './interfaces/game.interface'
+import { IGame } from './types/game.interfaces'
+import { GameStatus } from './types/game.constants'
 import { Game } from './models/game.entity'
 import { UsersService } from '../users/users.service'
-
+import { JoinGameDto } from './dto/join-game.dto'
 
 @Injectable()
 export class GamesService {
 
-    static readonly GAME_STATUS_CREATED = 'created'
-    static readonly GAME_STATUS_PROGRESS = 'progress'
-    static readonly GAME_STATUS_COMPLETED = 'completed'
-
     constructor(
         @InjectRepository(Game)
         private gamesRepository: Repository<Game>,
-        private userService: UsersService
+        private userService: UsersService,
     ) {}
+
+    async getAll() {
+        return this.gamesRepository.find()
+    }
 
     async create(createGameDto: CreateGameDto) {
         const user = await this.userService.getCurrentUser()
@@ -27,10 +28,29 @@ export class GamesService {
         const game = new Game()
         game.title = createGameDto.title
         game.password = createGameDto.password || ''
-        game.status = GamesService.GAME_STATUS_CREATED
+        game.status = GameStatus.CREATED
         game.owner = user.id
         game.users = [user]
 
         return await this.gamesRepository.save(game)
+    }
+
+    async join(joinGameDto: JoinGameDto) {
+        const game = await this.gamesRepository.findOneBy({ id: joinGameDto.gameId })
+        if (!game) {
+            throw new NotFoundException()
+        }
+
+        const user = await this.userService.getCurrentUser()
+
+    }
+
+    async delete(id: string): Promise<void> {
+        const deletedUser = await this.gamesRepository.findOneBy({ id })
+        if (!deletedUser) {
+            throw new NotFoundException()
+        }
+
+        await this.gamesRepository.delete(id)
     }
 }

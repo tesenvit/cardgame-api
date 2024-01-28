@@ -1,18 +1,15 @@
 import {
-    IsString,
     IsOptional,
+    IsString,
     MaxLength,
-    MinLength,
 } from 'class-validator'
 
 import { GAME_PASSWORD_MAX_LENGTH } from '../types/game.constants'
 
-export class CreateGameDto {
+export class JoinGameDto {
 
     @IsString()
-    @MaxLength(32)
-    @MinLength(3)
-    readonly title: string
+    readonly gameId: string
 
     @IsOptional()
     @MaxLength(GAME_PASSWORD_MAX_LENGTH)

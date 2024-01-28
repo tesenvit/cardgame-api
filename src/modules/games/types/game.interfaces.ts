@@ -5,5 +5,3 @@ export interface IGame {
     readonly status: string
     readonly owner: string
 }
-
-export type GameStatus = 'created' | 'progress' | 'completed'

@@ -13,7 +13,7 @@ import { User } from '../../users/models/user.entity'
 export class Game {
 
     @PrimaryGeneratedColumn('uuid')
-    id: number
+    id: string
 
     @Column()
     title: string
@@ -28,7 +28,7 @@ export class Game {
     status: string
 
     @Column()
-    owner: number
+    owner: string
 
     @CreateDateColumn()
     createdAt: Date

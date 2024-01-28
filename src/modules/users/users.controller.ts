@@ -18,6 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController extends BaseController {
 
     constructor(
@@ -27,17 +28,15 @@ export class UsersController extends BaseController {
     }
 
     @Get('/:id')
-    @UseGuards(JwtAuthGuard)
     async get(
         @Res() response,
-        @Param('id') id: number
+        @Param('id') id: string
     ): Promise<Response> {
-        const user = await this.userService.getById(Number(id))
+        const user = await this.userService.getById(id)
         return this.result(response, user)
     }
 
     @Get()
-    @UseGuards(JwtAuthGuard)
     async getAll(
         @Res() response
     ): Promise<Response> {
@@ -57,19 +56,19 @@ export class UsersController extends BaseController {
     @Put('/:id')
     async update(
         @Res() response,
-        @Param('id') userId: string,
+        @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto
     ): Promise<Response> {
-        const user = await this.userService.update(Number(userId), updateUserDto)
+        const user = await this.userService.update(id, updateUserDto)
         return this.result(response, user)
     }
 
     @Delete('/:id')
     async delete(
         @Res() response,
-        @Param('id') id: number
+        @Param('id') id: string
     ): Promise<Response> {
-        await this.userService.delete(Number(id))
+        await this.userService.delete(id)
         return this.success(response)
     }
 }

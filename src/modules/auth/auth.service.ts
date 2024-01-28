@@ -6,6 +6,7 @@ import { IToken } from './interfaces/token.interface'
 import { UsersService } from '../users/users.service'
 import { CreateUserDto } from '../users/dto/create-user.dto'
 import { IUser } from '../users/interfaces/user.interface'
+import { User } from '../users/models/user.entity'
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
         private jwtService: JwtService,
     ) {}
 
-    public async validateUser(email: string, password: string): Promise<IUser | null> {
+    public async validateUser(email: string, password: string): Promise<User | null> {
         const user = await this.usersService.getByEmail(email, true)
         return user && await bcrypt.compare(password, user.password) ? user : null
     }

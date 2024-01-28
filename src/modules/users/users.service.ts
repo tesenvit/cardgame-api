@@ -25,7 +25,7 @@ export class UsersService {
         private jwtService: JwtService,
     ) {}
 
-    async getByEmail(email: string, includeHidden = false): Promise<IUser> {
+    async getByEmail(email: string, includeHidden = false): Promise<User> {
         const user = this.getByField(UsersService.EMAIL_FIELD, email, includeHidden)
         if (!user) {
             throw new NotFoundException()
@@ -34,7 +34,7 @@ export class UsersService {
         return user
     }
 
-    async getById(id: number, includeHidden = false): Promise<User> {
+    async getById(id: string, includeHidden = false): Promise<User> {
         const user = this.getByField(UsersService.ID_FIELD, id, includeHidden)
         if (!user) {
             throw new NotFoundException()
@@ -54,11 +54,11 @@ export class UsersService {
         return this.getById(userId)
     }
 
-    async getAll(): Promise<IUser[]> {
+    async getAll(): Promise<User[]> {
         return this.usersRepository.find()
     }
 
-    async create(createUserDto: CreateUserDto): Promise<IUser> {
+    async create(createUserDto: CreateUserDto): Promise<User> {
         const doesUserExist = await this.usersRepository.findOneBy({ email: createUserDto.email })
         if (doesUserExist) {
             throw new ValidateException({ email: 'email address already exists' })
@@ -72,7 +72,7 @@ export class UsersService {
         return await this.usersRepository.save(user)
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto): Promise<IUser> {
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         const user = await this.usersRepository.findOneBy({ id })
         if (!user) {
             throw new NotFoundException()
@@ -83,7 +83,7 @@ export class UsersService {
         return await this.usersRepository.findOneBy({ id })
     }
 
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const deletedUser = await this.usersRepository.findOneBy({ id })
         if (!deletedUser) {
             throw new NotFoundException()

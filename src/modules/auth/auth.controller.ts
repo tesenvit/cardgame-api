@@ -37,9 +37,7 @@ export class AuthController extends BaseController {
         @Res() response,
         @Req() request
     ): Promise<Response> {
-        console.log('START')
         const token = await this.authService.login(request.user)
-        console.log('END')
         return this.result(response, token)
     }
 }
