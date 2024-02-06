@@ -27,21 +27,21 @@ export class UsersController extends BaseController {
         super()
     }
 
+    @Get()
+    async findAll(
+        @Res() response
+    ): Promise<Response> {
+        const users = await this.userService.findAll()
+        return this.result(response, users)
+    }
+
     @Get('/:id')
-    async get(
+    async findOne(
         @Res() response,
         @Param('id') id: string
     ): Promise<Response> {
-        const user = await this.userService.getById(id)
+        const user = await this.userService.findOne(id)
         return this.result(response, user)
-    }
-
-    @Get()
-    async getAll(
-        @Res() response
-    ): Promise<Response> {
-        const users = await this.userService.getAll()
-        return this.result(response, users)
     }
 
     @Post()

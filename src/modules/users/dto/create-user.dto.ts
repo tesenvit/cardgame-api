@@ -3,12 +3,21 @@ import {
     IsEmail,
     IsString,
     MaxLength,
+    MinLength,
     IsStrongPassword,
+    IsOptional,
 } from 'class-validator'
+
+import {
+    PLAYER_USERNAME_MIN_LENGTH,
+    PLAYER_USERNAME_MAX_LENGTH,
+} from '../../players/types/players.constants'
 
 export class CreateUserDto {
 
-    @MaxLength(30)
+    @IsOptional()
+    @MinLength(PLAYER_USERNAME_MIN_LENGTH)
+    @MaxLength(PLAYER_USERNAME_MAX_LENGTH)
     @IsString()
     @IsNotEmpty()
     readonly username: string

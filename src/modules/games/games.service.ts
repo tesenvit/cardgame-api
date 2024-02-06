@@ -15,7 +15,7 @@ export class GamesService {
     constructor(
         @InjectRepository(Game)
         private gamesRepository: Repository<Game>,
-        private userService: UsersService,
+        private usersService: UsersService,
     ) {}
 
     async getAll() {
@@ -23,14 +23,14 @@ export class GamesService {
     }
 
     async create(createGameDto: CreateGameDto) {
-        const user = await this.userService.getCurrentUser()
+        const user = await this.usersService.getCurrentUser()
 
         const game = new Game()
         game.title = createGameDto.title
         game.password = createGameDto.password || ''
         game.status = GameStatus.CREATED
         game.owner = user.id
-        game.users = [user]
+        // game.users = [user]
 
         return await this.gamesRepository.save(game)
     }
@@ -41,7 +41,7 @@ export class GamesService {
             throw new NotFoundException()
         }
 
-        const user = await this.userService.getCurrentUser()
+        const user = await this.usersService.getCurrentUser()
 
     }
 

@@ -1,0 +1,2 @@
+export const PLAYER_USERNAME_MIN_LENGTH = 3
+export const PLAYER_USERNAME_MAX_LENGTH = 30

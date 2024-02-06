@@ -8,9 +8,10 @@ import { IUser } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { ValidateException } from '../../common/exceptions/validate.exception'
-import { User } from './models/user.entity'
+import { User } from './entities/user.entity'
 import { AsyncLocalStorage } from 'async_hooks'
 import { AuthTokenStore } from '../als/interfaces/als.interface'
+import { PlayersService } from '../players/players.service'
 
 @Injectable()
 export class UsersService {
@@ -23,9 +24,10 @@ export class UsersService {
         private usersRepository: Repository<User>,
         private readonly als: AsyncLocalStorage<AuthTokenStore>,
         private jwtService: JwtService,
+        private playersService: PlayersService
     ) {}
 
-    async getByEmail(email: string, includeHidden = false): Promise<User> {
+    async findOneByEmail(email: string, includeHidden = false): Promise<User> {
         const user = this.getByField(UsersService.EMAIL_FIELD, email, includeHidden)
         if (!user) {
             throw new NotFoundException()
@@ -34,7 +36,7 @@ export class UsersService {
         return user
     }
 
-    async getById(id: string, includeHidden = false): Promise<User> {
+    async findOne(id: string, includeHidden = false): Promise<User> {
         const user = this.getByField(UsersService.ID_FIELD, id, includeHidden)
         if (!user) {
             throw new NotFoundException()
@@ -51,10 +53,10 @@ export class UsersService {
 
         const userId = this.jwtService.decode(token).sub
 
-        return this.getById(userId)
+        return this.findOne(userId)
     }
 
-    async getAll(): Promise<User[]> {
+    async findAll(): Promise<User[]> {
         return this.usersRepository.find()
     }
 
@@ -64,10 +66,13 @@ export class UsersService {
             throw new ValidateException({ email: 'email address already exists' })
         }
 
+        const username = createUserDto.username || this.playersService.generateUsername()
+        const player = await this.playersService.create({ username })
+
         const user = new User()
-        user.username =  createUserDto.username
         user.password = await bcrypt.hash(createUserDto.password, await bcrypt.genSalt())
         user.email = createUserDto.email
+        user.player = player
 
         return await this.usersRepository.save(user)
     }
@@ -84,12 +89,12 @@ export class UsersService {
     }
 
     async delete(id: string): Promise<void> {
-        const deletedUser = await this.usersRepository.findOneBy({ id })
-        if (!deletedUser) {
+        const user = await this.usersRepository.findOneBy({ id })
+        if (!user) {
             throw new NotFoundException()
         }
 
-        await this.usersRepository.delete(id)
+        await this.playersService.delete(user.player.id)
     }
 
     private async getByField(field: string, value: number | string, includeHidden = false) {

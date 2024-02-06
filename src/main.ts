@@ -5,12 +5,13 @@ import { AppModule } from './modules/app.module'
 import init from './init'
 
 async function bootstrap(): Promise<void> {
-    const app = await NestFactory.create(AppModule)
-    const configService = app.get(ConfigService)
-    const PORT = configService.get<number>('port')
+    const app = await NestFactory.create(AppModule, {
+        logger: ['warn', 'error'],
+    })
 
     init(app)
 
+    const PORT = app.get(ConfigService).get<number>('port')
     await app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
 }
 
