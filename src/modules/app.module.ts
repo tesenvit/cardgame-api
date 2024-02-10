@@ -9,6 +9,7 @@ import { GamesModule } from './games/games.module'
 import { AlsModule } from './als/als.module'
 import { AuthTokenMiddleware } from '../common/middlewares/auth-token.middleware'
 import { PlayersModule } from './players/players.module'
+import { TestsModule } from './tests/tests.module';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { PlayersModule } from './players/players.module'
         AuthModule,
         GamesModule,
         PlayersModule,
+        TestsModule,
     ],
     controllers: [],
     providers: [],

@@ -3,9 +3,11 @@ import {
     Column,
     PrimaryGeneratedColumn,
     OneToOne,
+    ManyToOne,
     JoinColumn,
 } from 'typeorm'
 import { User } from '../../users/entities/user.entity'
+import { Game } from '../../games/entities/game.entity'
 
 @Entity()
 export class Player {
@@ -26,4 +28,14 @@ export class Player {
         }
     )
     user: User
+
+    @ManyToOne(
+        () => Game,
+        game => game.players,
+        {
+            onDelete: 'SET NULL',
+        }
+    )
+    @JoinColumn()
+    game: Game
 }

@@ -4,22 +4,27 @@ import { GamesController } from './games.controller'
 import { GamesService } from './games.service'
 import { GamesGateway } from './games.gateway'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { User } from '../users/entities/user.entity'
-import { Game } from './models/game.entity'
+import { Game } from './entities/game.entity'
+import { Player } from '../players/entities/player.entity'
 import { UsersModule } from '../users/users.module'
+import { PlayersModule } from '../players/players.module'
 
 @Module({
-  imports: [
-      TypeOrmModule.forFeature([
-          Game,
-          User,
-      ]),
-      UsersModule,
-  ],
-  controllers: [GamesController],
-  providers: [
-      GamesService,
-      GamesGateway,
-  ],
+    imports: [
+        TypeOrmModule.forFeature([
+            Game,
+            Player,
+        ]),
+        UsersModule,
+        PlayersModule,
+    ],
+    controllers: [GamesController],
+    providers: [
+        GamesService,
+        GamesGateway,
+    ],
+    exports: [
+        GamesService,
+    ],
 })
 export class GamesModule {}

@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -29,11 +29,18 @@ export class PlayersService {
     }
 
     async findAll(): Promise<Player[]> {
-        return this.playersRepository.find()
+        return this.playersRepository.find({ relations: { game: true } } )
     }
 
     findOne(id: string): Promise<Player> {
-        const player = this.playersRepository.findOneBy({ id })
+        const player = this.playersRepository.findOne({
+            where: {
+                id,
+            },
+            relations: {
+                game: true,
+            },
+        })
         if (!player) {
             throw new NotFoundException()
         }

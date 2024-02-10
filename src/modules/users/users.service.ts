@@ -37,7 +37,7 @@ export class UsersService {
     }
 
     async findOne(id: string, includeHidden = false): Promise<User> {
-        const user = this.getByField(UsersService.ID_FIELD, id, includeHidden)
+        const user = await this.getByField(UsersService.ID_FIELD, id, includeHidden)
         if (!user) {
             throw new NotFoundException()
         }
@@ -102,6 +102,7 @@ export class UsersService {
             where: {
                 [field]: value,
             },
+            players: true,
         }
         if (includeHidden) {
             options.select = this.getAllRepositoryCols()

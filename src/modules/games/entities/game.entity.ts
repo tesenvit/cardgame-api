@@ -7,7 +7,7 @@ import {
     OneToMany,
 } from 'typeorm'
 
-import { User } from '../../users/entities/user.entity'
+import { Player } from '../../players/entities/player.entity'
 
 @Entity()
 export class Game {
@@ -21,14 +21,17 @@ export class Game {
     @Column()
     password: string
 
-    @OneToMany(() => User, user => user.game)
-    users: User[]
+    @OneToMany(
+        () => Player,
+        player => player.game,
+        {
+            eager: true,
+        }
+    )
+    players: Player[]
 
     @Column()
     status: string
-
-    @Column()
-    owner: string
 
     @CreateDateColumn()
     createdAt: Date

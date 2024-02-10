@@ -5,9 +5,11 @@ import { Repository } from 'typeorm'
 import { CreateGameDto } from './dto/create-game.dto'
 import { IGame } from './types/game.interfaces'
 import { GameStatus } from './types/game.constants'
-import { Game } from './models/game.entity'
-import { UsersService } from '../users/users.service'
+import { Game } from './entities/game.entity'
 import { JoinGameDto } from './dto/join-game.dto'
+import { PlayersService } from '../players/players.service'
+import { UsersService } from '../users/users.service'
+import { ValidateException } from '../../common/exceptions/validate.exception'
 
 @Injectable()
 export class GamesService {
@@ -16,21 +18,26 @@ export class GamesService {
         @InjectRepository(Game)
         private gamesRepository: Repository<Game>,
         private usersService: UsersService,
+        private playersService: PlayersService,
     ) {}
 
-    async getAll() {
+    async findAll() {
         return this.gamesRepository.find()
     }
 
-    async create(createGameDto: CreateGameDto) {
-        const user = await this.usersService.getCurrentUser()
+    async create(createGameDto: CreateGameDto): Promise<Game> {
+        const gameExist = await this.gamesRepository.findOneBy({ title: createGameDto.title })
+        if (gameExist) {
+            throw new ValidateException({ title: 'A game with the same title already exists' })
+        }
+
+        const currentUser = await this.usersService.getCurrentUser()
 
         const game = new Game()
         game.title = createGameDto.title
         game.password = createGameDto.password || ''
         game.status = GameStatus.CREATED
-        game.owner = user.id
-        // game.users = [user]
+        game.players = [currentUser.player]
 
         return await this.gamesRepository.save(game)
     }
@@ -41,8 +48,23 @@ export class GamesService {
             throw new NotFoundException()
         }
 
-        const user = await this.usersService.getCurrentUser()
+        const password = joinGameDto.password || ''
+        if (game.password && (game.password !== password)) {
+            throw new ValidateException({ password: 'Wrong password' })
+        }
 
+        const currentPlayer = await this.getCurrentPlayer()
+
+        if (currentPlayer.game) {
+            const error = (currentPlayer.game.id === game.id)
+                ? `You're already in this game`
+                : `You're already in another game`
+            throw new ValidateException({ gameId: error })
+        }
+
+        game.players.push(currentPlayer)
+
+        await this.gamesRepository.save(game)
     }
 
     async delete(id: string): Promise<void> {
@@ -52,5 +74,10 @@ export class GamesService {
         }
 
         await this.gamesRepository.delete(id)
+    }
+
+    private async getCurrentPlayer() {
+        const currentUser = await this.usersService.getCurrentUser()
+        return await this.playersService.findOne(currentUser.player.id)
     }
 }

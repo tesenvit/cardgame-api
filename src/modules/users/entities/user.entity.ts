@@ -6,10 +6,8 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
-    ManyToOne,
 } from 'typeorm'
 import { Player } from '../../players/entities/player.entity'
-import { Game } from '../../games/models/game.entity'
 
 @Entity()
 export class User {
@@ -35,12 +33,6 @@ export class User {
     )
     @JoinColumn()
     player: Player
-
-    @ManyToOne(
-        () => Game,
-        game => game.users,
-    )
-    game: Game
 
     @CreateDateColumn()
     createdAt: Date

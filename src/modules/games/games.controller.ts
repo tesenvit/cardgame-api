@@ -28,7 +28,7 @@ export class GamesController extends BaseController {
     async getAll(
         @Res() response
     ): Promise<Response> {
-        const games = await this.gamesService.getAll()
+        const games = await this.gamesService.findAll()
         return this.result(response, games)
     }
 
@@ -41,21 +41,21 @@ export class GamesController extends BaseController {
         return this.result(response, game)
     }
 
+    @Post('/join')
+    async join(
+        @Res() response,
+        @Body() joinGameDto: JoinGameDto
+    ) {
+        await this.gamesService.join(joinGameDto)
+        return this.success(response)
+    }
+
     @Delete('/:id')
     async delete(
         @Res() response,
         @Param('id') id: string
     ): Promise<Response> {
         await this.gamesService.delete(id)
-        return this.success(response)
-    }
-
-    @Post()
-    async join(
-        @Res() response,
-        @Body() joinGameDto: JoinGameDto
-    ) {
-        await this.gamesService.join(joinGameDto)
         return this.success(response)
     }
 }
