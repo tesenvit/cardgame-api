@@ -31,18 +31,22 @@ export class GamesService {
             throw new ValidateException({ title: 'A game with the same title already exists' })
         }
 
-        const currentUser = await this.usersService.getCurrentUser()
+        const currentPlayer = await this.getCurrentPlayer()
+
+        if (currentPlayer.game) {
+            throw new ValidateException({ gameId: 'Player is already in another game' })
+        }
 
         const game = new Game()
         game.title = createGameDto.title
         game.password = createGameDto.password || ''
         game.status = GameStatus.CREATED
-        game.players = [currentUser.player]
+        game.players = [currentPlayer]
 
         return await this.gamesRepository.save(game)
     }
 
-    async join(joinGameDto: JoinGameDto) {
+    async join(joinGameDto: JoinGameDto): Promise<void> {
         const game = await this.gamesRepository.findOneBy({ id: joinGameDto.gameId })
         if (!game) {
             throw new NotFoundException()
@@ -57,8 +61,8 @@ export class GamesService {
 
         if (currentPlayer.game) {
             const error = (currentPlayer.game.id === game.id)
-                ? `You're already in this game`
-                : `You're already in another game`
+                ? 'Player is already in this game'
+                : 'Player is already in another game'
             throw new ValidateException({ gameId: error })
         }
 
