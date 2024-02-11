@@ -67,7 +67,7 @@ export class UsersService {
         })
 
         const user = new User()
-        user.password = await bcrypt.hash(createUserDto.password, await bcrypt.genSalt())
+        user.password = createUserDto.password
         user.email = createUserDto.email
         user.player = player
 

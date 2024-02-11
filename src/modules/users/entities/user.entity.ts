@@ -6,7 +6,11 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
+    BeforeInsert,
+    BeforeUpdate,
 } from 'typeorm'
+import * as bcrypt from 'bcrypt'
+
 import { Player } from '../../players/entities/player.entity'
 
 @Entity()
@@ -40,4 +44,10 @@ export class User {
 
     @UpdateDateColumn()
     updatedAt: Date
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    async hashPassword() {
+        this.password = await bcrypt.hash(this.password, await bcrypt.genSalt())
+    }
 }
