@@ -29,6 +29,7 @@ export class User {
         {
             eager: true,
             onDelete: 'CASCADE',
+            cascade: true,
         }
     )
     @JoinColumn()

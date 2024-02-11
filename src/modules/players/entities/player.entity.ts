@@ -27,6 +27,7 @@ export class Player {
             onDelete: 'CASCADE',
         }
     )
+    @JoinColumn()
     user: User
 
     @ManyToOne(

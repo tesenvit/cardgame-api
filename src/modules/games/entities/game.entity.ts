@@ -8,6 +8,7 @@ import {
 } from 'typeorm'
 
 import { Player } from '../../players/entities/player.entity'
+import { GameStatus } from '../types/game.constants'
 
 @Entity()
 export class Game {
@@ -30,7 +31,10 @@ export class Game {
     )
     players: Player[]
 
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: GameStatus,
+    })
     status: string
 
     @CreateDateColumn()

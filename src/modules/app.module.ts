@@ -1,15 +1,16 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
 
 import configuration from '../configs/app.config'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { GamesModule } from './games/games.module'
 import { AlsModule } from './als/als.module'
-import { AuthTokenMiddleware } from '../common/middlewares/auth-token.middleware'
 import { PlayersModule } from './players/players.module'
 import { TestsModule } from './tests/tests.module'
+import { AuthMiddleware } from '../common/middlewares/auth-token.middleware'
 
 @Module({
     imports: [
@@ -35,11 +36,13 @@ import { TestsModule } from './tests/tests.module'
         TestsModule,
     ],
     controllers: [],
-    providers: [],
+    providers: [
+        JwtService,
+    ],
 })
 
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(AuthTokenMiddleware).forRoutes('*')
+        consumer.apply(AuthMiddleware).forRoutes('*')
     }
 }

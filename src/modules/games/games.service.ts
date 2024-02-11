@@ -17,7 +17,6 @@ export class GamesService {
     constructor(
         @InjectRepository(Game)
         private gamesRepository: Repository<Game>,
-        private usersService: UsersService,
         private playersService: PlayersService,
     ) {}
 
@@ -31,7 +30,7 @@ export class GamesService {
             throw new ValidateException({ title: 'A game with the same title already exists' })
         }
 
-        const currentPlayer = await this.getCurrentPlayer()
+        const currentPlayer = await this.playersService.getCurrentPlayer()
 
         if (currentPlayer.game) {
             throw new ValidateException({ gameId: 'Player is already in another game' })
@@ -57,7 +56,7 @@ export class GamesService {
             throw new ValidateException({ password: 'Wrong password' })
         }
 
-        const currentPlayer = await this.getCurrentPlayer()
+        const currentPlayer = await this.playersService.getCurrentPlayer()
 
         if (currentPlayer.game) {
             const error = (currentPlayer.game.id === game.id)
@@ -78,10 +77,5 @@ export class GamesService {
         }
 
         await this.gamesRepository.delete(id)
-    }
-
-    private async getCurrentPlayer() {
-        const currentUser = await this.usersService.getCurrentUser()
-        return await this.playersService.findOne(currentUser.player.id)
     }
 }

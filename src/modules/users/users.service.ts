@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
-import { JwtService } from '@nestjs/jwt'
 
 import { IUser } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -23,7 +22,6 @@ export class UsersService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         private readonly als: AsyncLocalStorage<AuthTokenStore>,
-        private jwtService: JwtService,
         private playersService: PlayersService
     ) {}
 
@@ -46,12 +44,10 @@ export class UsersService {
     }
 
     async getCurrentUser(): Promise<User> {
-        const token = this.als.getStore().authUserToken
-        if (!token) {
+        const userId = this.als.getStore()?.userId
+        if (!userId) {
             throw new NotFoundException()
         }
-
-        const userId = this.jwtService.decode(token).sub
 
         return this.findOne(userId)
     }
@@ -61,18 +57,21 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
-        const doesUserExist = await this.usersRepository.findOneBy({ email: createUserDto.email })
-        if (doesUserExist) {
+        const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email })
+        if (existingUser) {
             throw new ValidateException({ email: 'email address already exists' })
         }
 
-        const username = createUserDto.username || this.playersService.generateUsername()
-        const player = await this.playersService.create({ username })
+        const player = await this.playersService.create({
+            username: createUserDto.username || null,
+        })
 
         const user = new User()
         user.password = await bcrypt.hash(createUserDto.password, await bcrypt.genSalt())
         user.email = createUserDto.email
         user.player = player
+
+        player.user = user
 
         return await this.usersRepository.save(user)
     }

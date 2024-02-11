@@ -6,7 +6,6 @@ import { GamesGateway } from './games.gateway'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Game } from './entities/game.entity'
 import { Player } from '../players/entities/player.entity'
-import { UsersModule } from '../users/users.module'
 import { PlayersModule } from '../players/players.module'
 
 @Module({
@@ -15,7 +14,6 @@ import { PlayersModule } from '../players/players.module'
             Game,
             Player,
         ]),
-        UsersModule,
         PlayersModule,
     ],
     controllers: [GamesController],

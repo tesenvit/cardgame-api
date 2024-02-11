@@ -1,8 +1,9 @@
 import {
-    IsNotEmpty, IsOptional,
+    IsNotEmpty,
     IsString,
     MaxLength,
     MinLength,
+    IsOptional,
 } from 'class-validator'
 
 import {
@@ -12,6 +13,7 @@ import {
 
 export class CreatePlayerDto {
 
+    @IsOptional()
     @MinLength(PLAYER_USERNAME_MIN_LENGTH)
     @MaxLength(PLAYER_USERNAME_MAX_LENGTH)
     @IsString()
