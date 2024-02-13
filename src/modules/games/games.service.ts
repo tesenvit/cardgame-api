@@ -8,7 +8,6 @@ import { GameStatus } from './types/game.constants'
 import { Game } from './entities/game.entity'
 import { JoinGameDto } from './dto/join-game.dto'
 import { PlayersService } from '../players/players.service'
-import { UsersService } from '../users/users.service'
 import { ValidateException } from '../../common/exceptions/validate.exception'
 
 @Injectable()
@@ -36,11 +35,12 @@ export class GamesService {
             throw new ValidateException({ gameId: 'Player is already in another game' })
         }
 
-        const game = new Game()
-        game.title = createGameDto.title
-        game.password = createGameDto.password || ''
-        game.status = GameStatus.CREATED
-        game.players = [currentPlayer]
+        const game = this.gamesRepository.create({
+            title: createGameDto.title,
+            password: createGameDto.password || '',
+            status: GameStatus.CREATED,
+            players: [currentPlayer],
+        })
 
         return await this.gamesRepository.save(game)
     }

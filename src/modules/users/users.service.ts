@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import * as bcrypt from 'bcrypt'
 
 import { IUser } from './interfaces/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -62,15 +61,16 @@ export class UsersService {
             throw new ValidateException({ email: 'email address already exists' })
         }
 
+        const user = this.usersRepository.create({
+            password: createUserDto.password,
+            email: createUserDto.email,
+        })
+
         const player = await this.playersService.create({
             username: createUserDto.username || null,
         })
 
-        const user = new User()
-        user.password = createUserDto.password
-        user.email = createUserDto.email
         user.player = player
-
         player.user = user
 
         return await this.usersRepository.save(user)

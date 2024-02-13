@@ -26,8 +26,9 @@ export class PlayersService {
             throw new ValidateException({ username: 'username already exists' })
         }
 
-        const player = new Player()
-        player.username = username
+        const player = this.playersRepository.create({
+            username,
+        })
 
         return await this.playersRepository.save(player)
     }
