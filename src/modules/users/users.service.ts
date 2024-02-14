@@ -14,18 +14,16 @@ import { PlayersService } from '../players/players.service'
 @Injectable()
 export class UsersService {
 
-    static readonly EMAIL_FIELD = 'email'
-    static readonly ID_FIELD = 'id'
-
     constructor(
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         private readonly als: AsyncLocalStorage<AuthTokenStore>,
-        private playersService: PlayersService
+        private playersService: PlayersService,
     ) {}
 
-    async findOneByEmail(email: string, includeHidden = false): Promise<User> {
-        const user = this.getByField(UsersService.EMAIL_FIELD, email, includeHidden)
+    async findOneByEmail(email: string): Promise<User> {
+        const user = await this.usersRepository.findOneBy({ email })
+
         if (!user) {
             throw new NotFoundException()
         }
@@ -33,22 +31,21 @@ export class UsersService {
         return user
     }
 
-    async findOne(id: string, includeHidden = false): Promise<User> {
-        const user = await this.getByField(UsersService.ID_FIELD, id, includeHidden)
+    async findOne(id: string): Promise<User> {
+        const user = await this.usersRepository.findOne({
+            where: {
+                id,
+            },
+            relations: {
+                player: true,
+            },
+        })
+
         if (!user) {
             throw new NotFoundException()
         }
 
         return user
-    }
-
-    async getCurrentUser(): Promise<User> {
-        const userId = this.als.getStore()?.userId
-        if (!userId) {
-            throw new NotFoundException()
-        }
-
-        return this.findOne(userId)
     }
 
     async findAll(): Promise<User[]> {
@@ -94,23 +91,5 @@ export class UsersService {
         }
 
         await this.playersService.delete(user.player.id)
-    }
-
-    private async getByField(field: string, value: number | string, includeHidden = false) {
-        const options: any = {
-            where: {
-                [field]: value,
-            },
-            players: true,
-        }
-        if (includeHidden) {
-            options.select = this.getAllRepositoryCols()
-        }
-
-        return this.usersRepository.findOne(options)
-    }
-
-    private getAllRepositoryCols<T>(): (keyof T)[] {
-        return (this.usersRepository.metadata.columns.map(col => col.propertyName) as (keyof T)[])
     }
 }
