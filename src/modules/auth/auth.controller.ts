@@ -11,7 +11,7 @@ import { Response } from 'express'
 import { BaseController } from '../base.controller'
 import { AuthService } from './auth.service'
 import { CreateUserDto } from '../users/dto/create-user.dto'
-import { LocalAuthGuard } from './guards/local-auth.guard'
+import { LocalAuthGuard } from '../../common/guards/local-auth.guard'
 
 @Controller('auth')
 export class AuthController extends BaseController {

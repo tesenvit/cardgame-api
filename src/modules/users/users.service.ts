@@ -2,14 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { IUser } from './interfaces/user.interface'
+import { IUser } from './types/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { ValidateException } from '../../common/exceptions/validate.exception'
 import { User } from './entities/user.entity'
 import { AsyncLocalStorage } from 'async_hooks'
-import { AuthTokenStore } from '../als/interfaces/als.interface'
+import { AuthTokenStore } from '../als/types/als.interface'
 import { PlayersService } from '../players/players.service'
+import { Role } from '../auth/types/auth.constants'
 
 @Injectable()
 export class UsersService {
@@ -61,6 +62,7 @@ export class UsersService {
         const user = this.usersRepository.create({
             password: createUserDto.password,
             email: createUserDto.email,
+            role: Role.ADMIN,
         })
 
         const player = await this.playersService.create({

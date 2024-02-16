@@ -12,6 +12,7 @@ import {
 import * as bcrypt from 'bcrypt'
 
 import { Player } from '../../players/entities/player.entity'
+import { Role } from '../../auth/types/auth.constants'
 
 @Entity()
 export class User {
@@ -38,6 +39,13 @@ export class User {
     )
     @JoinColumn()
     player: Player
+
+    @Column({
+        type: 'enum',
+        enum: Role,
+        default: Role.USER,
+    })
+    role: Role
 
     @CreateDateColumn()
     createdAt: Date

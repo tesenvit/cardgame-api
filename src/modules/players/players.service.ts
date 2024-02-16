@@ -7,7 +7,7 @@ import { CreatePlayerDto } from './dto/create-player.dto'
 import { UpdatePlayerDto } from './dto/update-player.dto'
 import { Player } from './entities/player.entity'
 import { ValidateException } from '../../common/exceptions/validate.exception'
-import { AuthTokenStore } from '../als/interfaces/als.interface'
+import { AuthTokenStore } from '../als/types/als.interface'
 
 @Injectable()
 export class PlayersService {

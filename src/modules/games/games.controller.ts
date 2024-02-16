@@ -10,7 +10,7 @@ import {
 import { BaseController } from '../base.controller'
 import { CreateGameDto } from './dto/create-game.dto'
 import { GamesService } from './games.service'
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 import { JoinGameDto } from './dto/join-game.dto'
 import { Response } from 'express'
 

@@ -15,7 +15,10 @@ import { BaseController } from '../base.controller'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
+import { RolesGuard } from '../../common/guards/role.guard'
+import { Roles } from '../../common/decorators/role.decorator'
+import { Role } from '../auth/types/auth.constants'
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -28,6 +31,8 @@ export class UsersController extends BaseController {
     }
 
     @Get()
+    @Roles(Role.ADMIN)
+    @UseGuards(RolesGuard)
     async findAll(
         @Res() response
     ): Promise<Response> {

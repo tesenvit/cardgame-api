@@ -1,11 +1,14 @@
-import { ExecutionContext, Injectable } from '@nestjs/common'
+import {
+    ExecutionContext,
+    Injectable,
+} from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 
-import { LoginAuthDto } from '../dto/login-auth.dto'
-import { ValidateException } from '../../../common/exceptions/validate.exception'
-import validationErrorHandler from '../../../common/helpers/validation/validation-error-handler'
+import { LoginAuthDto } from '../../modules/auth/dto/login-auth.dto'
+import { ValidateException } from '../exceptions/validate.exception'
+import validationErrorHandler from '../helpers/validation/validation-error-handler'
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {

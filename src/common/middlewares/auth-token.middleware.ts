@@ -3,7 +3,7 @@ import { AsyncLocalStorage } from 'async_hooks'
 import { Response, Request } from 'express'
 import { JwtService } from '@nestjs/jwt'
 
-import { AuthTokenStore } from '../../modules/als/interfaces/als.interface'
+import { AuthTokenStore } from '../../modules/als/types/als.interface'
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
