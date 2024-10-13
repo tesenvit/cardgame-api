@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common'
 
 import { HttpExceptionFilter } from './common/filters/http-exception.filter'
-import { ValidateException } from './common/exceptions/validate.exception'
-import validationErrorHandler from './common/helpers/validation/validation-error-handler'
+import { BadRequestException } from './common/exceptions/bad-request.exception'
+import transformErrors from './common/helpers/validation-transform-errors'
 
 export default (app: INestApplication): void => {
 
@@ -20,8 +20,8 @@ export default (app: INestApplication): void => {
     })
 
     app.useGlobalPipes(new ValidationPipe({
-        exceptionFactory: (validationErrors: ValidationError[] = []): HttpException => {
-            return new ValidateException(validationErrorHandler(validationErrors))
+        exceptionFactory: (errors: ValidationError[] = []): HttpException => {
+            return new BadRequestException(transformErrors(errors))
         },
     }))
 

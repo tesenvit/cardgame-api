@@ -6,7 +6,7 @@ import { AsyncLocalStorage } from 'async_hooks'
 import { CreatePlayerDto } from './dto/create-player.dto'
 import { UpdatePlayerDto } from './dto/update-player.dto'
 import { Player } from './entities/player.entity'
-import { ValidateException } from '../../common/exceptions/validate.exception'
+import { BadRequestException } from '../../common/exceptions/bad-request.exception'
 import { AuthTokenStore } from '../als/types/als.interface'
 
 @Injectable()
@@ -23,7 +23,7 @@ export class PlayersService {
 
         const existingPlayer = await this.playersRepository.findOneBy({ username })
         if (existingPlayer) {
-            throw new ValidateException({ username: 'username already exists' })
+            throw new BadRequestException({ username: 'username already exists' })
         }
 
         const player = this.playersRepository.create({

@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
-import configuration from '../configs/app.config'
+import configuration from '../config'
 import { AuthMiddleware } from '../common/middlewares/auth-token.middleware'
 
 import { UsersModule } from './users/users.module'
@@ -11,7 +11,6 @@ import { AuthModule } from './auth/auth.module'
 import { GamesModule } from './games/games.module'
 import { AlsModule } from './als/als.module'
 import { PlayersModule } from './players/players.module'
-import { TestsModule } from './tests/tests.module'
 
 @Module({
     imports: [
@@ -34,7 +33,6 @@ import { TestsModule } from './tests/tests.module'
         AuthModule,
         GamesModule,
         PlayersModule,
-        TestsModule,
     ],
     controllers: [],
     providers: [

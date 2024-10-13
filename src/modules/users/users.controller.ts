@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common'
 import { Response } from 'express'
 
-import { BaseController } from '../base.controller'
+import { BaseController } from '@/modules/_base/base.controller'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -34,7 +34,7 @@ export class UsersController extends BaseController {
     @Roles(Role.ADMIN)
     @UseGuards(RolesGuard)
     async findAll(
-        @Res() response
+        @Res() response: Response
     ): Promise<Response> {
         const users = await this.userService.findAll()
         return this.result(response, users)
@@ -42,7 +42,7 @@ export class UsersController extends BaseController {
 
     @Get('/:id')
     async findOne(
-        @Res() response,
+        @Res() response: Response,
         @Param('id') id: string
     ): Promise<Response> {
         const user = await this.userService.findOne(id)
@@ -51,7 +51,7 @@ export class UsersController extends BaseController {
 
     @Post()
     async create(
-        @Res() response,
+        @Res() response: Response,
         @Body() createUserDto: CreateUserDto
     ) {
         const user = await this.userService.create(createUserDto)
@@ -60,7 +60,7 @@ export class UsersController extends BaseController {
 
     @Put('/:id')
     async update(
-        @Res() response,
+        @Res() response: Response,
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto
     ): Promise<Response> {
@@ -70,7 +70,7 @@ export class UsersController extends BaseController {
 
     @Delete('/:id')
     async delete(
-        @Res() response,
+        @Res() response: Response,
         @Param('id') id: string
     ): Promise<Response> {
         await this.userService.delete(id)

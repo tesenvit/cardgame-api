@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { IUser } from './types/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { ValidateException } from '../../common/exceptions/validate.exception'
+import { BadRequestException } from '../../common/exceptions/bad-request.exception'
 import { User } from './entities/user.entity'
 import { AsyncLocalStorage } from 'async_hooks'
 import { AuthTokenStore } from '../als/types/als.interface'
@@ -24,7 +24,6 @@ export class UsersService {
 
     async findOneByEmail(email: string): Promise<User> {
         const user = await this.usersRepository.findOneBy({ email })
-
         if (!user) {
             throw new NotFoundException()
         }
@@ -56,7 +55,7 @@ export class UsersService {
     async create(createUserDto: CreateUserDto): Promise<User> {
         const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email })
         if (existingUser) {
-            throw new ValidateException({ email: 'email address already exists' })
+            throw new BadRequestException({ email: 'email address already exists' })
         }
 
         const user = this.usersRepository.create({

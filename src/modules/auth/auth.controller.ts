@@ -6,12 +6,13 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common'
-import { Response } from 'express'
+import { Response, Request } from 'express'
 
-import { BaseController } from '../base.controller'
-import { AuthService } from './auth.service'
-import { CreateUserDto } from '../users/dto/create-user.dto'
-import { LocalAuthGuard } from '../../common/guards/local-auth.guard'
+import { BaseController } from '@/modules/_base/base.controller'
+import { AuthService } from '@/modules/auth/auth.service'
+import { CreateUserDto } from '@/modules/users/dto/create-user.dto'
+import { LocalAuthGuard } from '@/common/guards/local-auth.guard'
+import { User } from '@/modules/users/entities/user.entity'
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -24,7 +25,7 @@ export class AuthController extends BaseController {
 
     @Post('register')
     async register(
-        @Res() response,
+        @Res() response: Response,
         @Body() createUserDto: CreateUserDto
     ): Promise<Response> {
         await this.authService.register(createUserDto)
@@ -34,10 +35,10 @@ export class AuthController extends BaseController {
     @Post('login')
     @UseGuards(LocalAuthGuard)
     async login(
-        @Res() response,
-        @Req() request
+        @Res() response: Response,
+        @Req() request: Request
     ): Promise<Response> {
-        const token = await this.authService.login(request.user)
+        const token = await this.authService.login(request.user as User)
         return this.result(response, token)
     }
 }

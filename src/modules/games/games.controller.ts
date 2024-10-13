@@ -6,13 +6,13 @@ import {
     Res,
     UseGuards, Delete, Param,
 } from '@nestjs/common'
-
-import { BaseController } from '../base.controller'
-import { CreateGameDto } from './dto/create-game.dto'
-import { GamesService } from './games.service'
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
-import { JoinGameDto } from './dto/join-game.dto'
 import { Response } from 'express'
+
+import { BaseController } from '@/modules/_base/base.controller'
+import { CreateGameDto } from '@/modules/games/dto/create-game.dto'
+import { GamesService } from '@/modules/games/games.service'
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard'
+import { JoinGameDto } from '@/modules/games/dto/join-game.dto'
 
 @Controller('games')
 @UseGuards(JwtAuthGuard)

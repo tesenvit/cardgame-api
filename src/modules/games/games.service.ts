@@ -8,7 +8,7 @@ import { GameStatus } from './types/game.constants'
 import { Game } from './entities/game.entity'
 import { JoinGameDto } from './dto/join-game.dto'
 import { PlayersService } from '../players/players.service'
-import { ValidateException } from '../../common/exceptions/validate.exception'
+import { BadRequestException } from '../../common/exceptions/bad-request.exception'
 
 @Injectable()
 export class GamesService {
@@ -26,13 +26,13 @@ export class GamesService {
     async create(createGameDto: CreateGameDto): Promise<Game> {
         const gameExist = await this.gamesRepository.findOneBy({ title: createGameDto.title })
         if (gameExist) {
-            throw new ValidateException({ title: 'A game with the same title already exists' })
+            throw new BadRequestException({ title: 'A game with the same title already exists' })
         }
 
         const currentPlayer = await this.playersService.getCurrentPlayer()
 
         if (currentPlayer.game) {
-            throw new ValidateException({ gameId: 'Player is already in another game' })
+            throw new BadRequestException({ gameId: 'Player is already in another game' })
         }
 
         const game = this.gamesRepository.create({
@@ -53,7 +53,7 @@ export class GamesService {
 
         const password = joinGameDto.password || ''
         if (game.password && (game.password !== password)) {
-            throw new ValidateException({ password: 'Wrong password' })
+            throw new BadRequestException({ password: 'Wrong password' })
         }
 
         const currentPlayer = await this.playersService.getCurrentPlayer()
@@ -62,7 +62,7 @@ export class GamesService {
             const error = (currentPlayer.game.id === game.id)
                 ? 'Player is already in this game'
                 : 'Player is already in another game'
-            throw new ValidateException({ gameId: error })
+            throw new BadRequestException({ gameId: error })
         }
 
         game.players.push(currentPlayer)

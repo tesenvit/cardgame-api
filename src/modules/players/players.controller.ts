@@ -11,7 +11,7 @@ import { Response } from 'express'
 
 import { PlayersService } from './players.service'
 import { UpdatePlayerDto } from './dto/update-player.dto'
-import { BaseController } from '../base.controller'
+import { BaseController } from '@/modules/_base/base.controller'
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 
 @Controller('players')
