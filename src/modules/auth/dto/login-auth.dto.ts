@@ -6,7 +6,6 @@ import {
 export class LoginAuthDto {
 
     @IsEmail()
-    @IsNotEmpty()
     readonly email: string
 
     @IsNotEmpty()

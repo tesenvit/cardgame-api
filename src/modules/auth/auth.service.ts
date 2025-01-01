@@ -7,6 +7,8 @@ import { UsersService } from '@/modules/users/users.service'
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto'
 import { IUser } from '@/modules/users/types/user.interface'
 import { User } from '@/modules/users/entities/user.entity'
+import { BadRequestException } from '@/common/exceptions/bad-request.exception'
+import { EmailNotFound, PasswordIncorrect } from '@/common/exceptions/errors'
 
 @Injectable()
 export class AuthService {
@@ -16,9 +18,18 @@ export class AuthService {
         private jwtService: JwtService,
     ) {}
 
-    public async validateUser(email: string, password: string): Promise<User | null> {
-        const user: User = await this.usersService.findOneByEmail(email)
-        return user && await bcrypt.compare(password, user.password) ? user : null
+    public async validateUser(email: string, password: string): Promise<User> {
+        const user: User | null = await this.usersService.findOneByEmail(email)
+        if (!user) {
+            throw new BadRequestException(EmailNotFound)
+        }
+
+        const passwordCompared: boolean = await bcrypt.compare(password, user.password)
+        if (!passwordCompared) {
+            throw new BadRequestException(PasswordIncorrect)
+        }
+
+        return user
     }
 
     async login(user: IUser): Promise<IToken> {

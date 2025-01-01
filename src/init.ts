@@ -25,5 +25,7 @@ export default (app: INestApplication): void => {
         },
     }))
 
+    app.enableCors()
+
     app.useGlobalFilters(new HttpExceptionFilter())
 }

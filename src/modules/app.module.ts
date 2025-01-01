@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
 import configuration from '../config'
-import { AuthMiddleware } from '../common/middlewares/auth-token.middleware'
+import { AuthMiddleware } from '@/common/middlewares/auth-token.middleware'
 
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'

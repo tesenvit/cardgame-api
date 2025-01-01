@@ -15,6 +15,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>()
+
     const errors = await validate(plainToClass(LoginAuthDto, request.body))
     if (errors.length) {
       throw new BadRequestException(transformErrors(errors))

@@ -2,10 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { IUser } from './types/user.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { BadRequestException } from '../../common/exceptions/bad-request.exception'
+import { BadRequestException } from '@/common/exceptions/bad-request.exception'
 import { User } from './entities/user.entity'
 import { AsyncLocalStorage } from 'async_hooks'
 import { AuthTokenStore } from '../als/types/als.interface'
@@ -22,16 +21,12 @@ export class UsersService {
         private playersService: PlayersService,
     ) {}
 
-    async findOneByEmail(email: string): Promise<User> {
+    async findOneByEmail(email: string): Promise<User | null> {
         const user = await this.usersRepository.findOneBy({ email })
-        if (!user) {
-            throw new NotFoundException()
-        }
-
-        return user
+        return user || null
     }
 
-    async findOne(id: string): Promise<User> {
+    async findOne(id: string): Promise<User | null> {
         const user = await this.usersRepository.findOne({
             where: {
                 id,
@@ -41,11 +36,7 @@ export class UsersService {
             },
         })
 
-        if (!user) {
-            throw new NotFoundException()
-        }
-
-        return user
+        return user || null
     }
 
     async findAll(): Promise<User[]> {
@@ -55,13 +46,13 @@ export class UsersService {
     async create(createUserDto: CreateUserDto): Promise<User> {
         const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email })
         if (existingUser) {
-            throw new BadRequestException({ email: 'email address already exists' })
+            throw new BadRequestException({ email: 'Email address already exists' })
         }
 
         const user = this.usersRepository.create({
             password: createUserDto.password,
             email: createUserDto.email,
-            role: Role.ADMIN,
+            role: Role.USER,
         })
 
         const player = await this.playersService.create({

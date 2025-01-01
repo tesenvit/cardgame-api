@@ -1,16 +1,17 @@
 import { ValidationError } from '@nestjs/common'
+import capitalize from '@/common/helpers/capitalize'
 
 interface IFormattedValidationErrors {
-  path: string
-  code: string
-  message: string
+    path: string
+    code: string
+    message: string
 }
 export default (validationErrors: ValidationError[] = []): IFormattedValidationErrors[] => {
   return validationErrors.map(({ property, constraints }) => {
-    return {
-      path: property,
-      code: Object.keys(constraints)[0],
-      message: Object.values(constraints)[0],
-    }
+      return {
+          path: property,
+          code: Object.keys(constraints)[0],
+          message: capitalize(Object.values(constraints)[0]),
+      }
   })
 }
