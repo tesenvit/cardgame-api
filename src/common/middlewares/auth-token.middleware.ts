@@ -21,7 +21,7 @@ export class AuthMiddleware implements NestMiddleware {
         }
 
         if (request.headers.authorization) {
-            const token = request.headers.authorization.replace('Bearer ', '')
+            const token: string = request.headers.authorization.replace('Bearer ', '')
             const data = this.jwtService.decode(token)
 
             store.authUserToken = token

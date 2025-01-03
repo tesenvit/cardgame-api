@@ -9,7 +9,7 @@ import {
 import { Response } from 'express'
 
 import { BaseController } from '@/modules/_base/base.controller'
-import { CreateGameDto } from '@/modules/games/dto/create-game.dto'
+// import { CreateGameDto } from '@/modules/games/dto/create-game.dto'
 import { GamesService } from '@/modules/games/games.service'
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard'
 import { JoinGameDto } from '@/modules/games/dto/join-game.dto'
@@ -32,21 +32,21 @@ export class GamesController extends BaseController {
         return this.result(response, games)
     }
 
-    @Post()
-    async create(
-        @Res() response,
-        @Body() createGameDto: CreateGameDto,
-    ) {
-        const game = await this.gamesService.create(createGameDto)
-        return this.result(response, game)
-    }
+    // @Post()
+    // async create(
+    //     @Res() response,
+    //     @Body() createGameDto: CreateGameDto,
+    // ) {
+    //     const game = await this.gamesService.create(createGameDto)
+    //     return this.result(response, game)
+    // }
 
     @Post('/join')
     async join(
         @Res() response,
         @Body() joinGameDto: JoinGameDto
     ) {
-        await this.gamesService.join(joinGameDto)
+        // await this.gamesService.join(joinGameDto)
         return this.success(response)
     }
 

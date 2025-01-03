@@ -24,4 +24,4 @@ module.exports = {
     "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
     "object-curly-spacing": ["error", "always"]
   },
-};
+}

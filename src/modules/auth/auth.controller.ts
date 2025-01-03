@@ -10,9 +10,9 @@ import { Response, Request } from 'express'
 
 import { BaseController } from '@/modules/_base/base.controller'
 import { AuthService } from '@/modules/auth/auth.service'
-import { CreateUserDto } from '@/modules/users/dto/create-user.dto'
 import { LocalAuthGuard } from '@/common/guards/local-auth.guard'
 import { User } from '@/modules/users/entities/user.entity'
+import { RegisterAuthDto } from '@/modules/auth/dto/register-auth.dto'
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -26,9 +26,9 @@ export class AuthController extends BaseController {
     @Post('register')
     async register(
         @Res() response: Response,
-        @Body() createUserDto: CreateUserDto
+        @Body() registerAuthDto: RegisterAuthDto
     ): Promise<Response> {
-        await this.authService.register(createUserDto)
+        await this.authService.register(registerAuthDto)
         return this.success(response)
     }
 

@@ -2,19 +2,21 @@ import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 
-import { IToken } from '@/modules/auth/types/token.interface'
+import { IToken } from '@/modules/auth/types/auth.interface'
 import { UsersService } from '@/modules/users/users.service'
-import { CreateUserDto } from '@/modules/users/dto/create-user.dto'
 import { IUser } from '@/modules/users/types/user.interface'
 import { User } from '@/modules/users/entities/user.entity'
 import { BadRequestException } from '@/common/exceptions/bad-request.exception'
 import { EmailNotFound, PasswordIncorrect } from '@/common/exceptions/errors'
+import { PlayersService } from '@/modules/players/players.service'
+import { RegisterAuthDto } from '@/modules/auth/dto/register-auth.dto'
 
 @Injectable()
 export class AuthService {
 
     constructor(
         private usersService: UsersService,
+        private playersService: PlayersService,
         private jwtService: JwtService,
     ) {}
 
@@ -42,7 +44,11 @@ export class AuthService {
         }
     }
 
-    async register(createUserDto: CreateUserDto): Promise<void> {
-        await this.usersService.create(createUserDto)
+    async register(registerAuthDto: RegisterAuthDto): Promise<void> {
+        const { username, ...userData } = registerAuthDto
+
+        const player = await this.playersService.create({ username })
+
+        await this.usersService.create(userData, player)
     }
 }

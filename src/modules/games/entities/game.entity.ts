@@ -4,11 +4,11 @@ import {
     PrimaryGeneratedColumn,
     CreateDateColumn,
     UpdateDateColumn,
-    OneToMany,
+    ManyToMany,
 } from 'typeorm'
 
-import { Player } from '../../players/entities/player.entity'
-import { GameStatus } from '../types/game.constants'
+import { GameStatus } from '@/modules/games/types/game.constants'
+import { Player } from '@/modules/players/entities/player.entity'
 
 @Entity()
 export class Game {
@@ -22,13 +22,7 @@ export class Game {
     @Column()
     password: string
 
-    @OneToMany(
-        () => Player,
-        player => player.game,
-        {
-            eager: true,
-        }
-    )
+    @ManyToMany(() => Player, (player) => player.games)
     players: Player[]
 
     @Column({

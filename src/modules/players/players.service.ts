@@ -3,11 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { AsyncLocalStorage } from 'async_hooks'
 
-import { CreatePlayerDto } from './dto/create-player.dto'
-import { UpdatePlayerDto } from './dto/update-player.dto'
-import { Player } from './entities/player.entity'
-import { BadRequestException } from '../../common/exceptions/bad-request.exception'
-import { AuthTokenStore } from '../als/types/als.interface'
+import { CreatePlayerDto } from '@/modules/players/dto/create-player.dto'
+import { UpdatePlayerDto } from '@/modules/players/dto/update-player.dto'
+import { Player } from '@/modules/players/entities/player.entity'
+import { BadRequestException } from '@/common/exceptions/bad-request.exception'
+import { AuthTokenStore } from '@/modules/als/types/als.interface'
+import { UsernameExist } from '@/common/exceptions/errors'
 
 @Injectable()
 export class PlayersService {
@@ -19,38 +20,41 @@ export class PlayersService {
     ) {}
 
     async create(createPlayerDto: CreatePlayerDto): Promise<Player> {
-        const username = createPlayerDto.username || this.generateUsername()
+        const { username } = createPlayerDto
 
         const existingPlayer = await this.playersRepository.findOneBy({ username })
         if (existingPlayer) {
-            throw new BadRequestException({ username: 'username already exists' })
+            throw new BadRequestException(UsernameExist)
         }
 
         const player = this.playersRepository.create({
             username,
+            rating: 0,
         })
 
         return await this.playersRepository.save(player)
     }
 
     async findAll(): Promise<Player[]> {
-        return this.playersRepository.find({ relations: { game: true } } )
+        return this.playersRepository.find({
+            relations: {
+                games: true,
+                currentGame: true,
+            },
+        })
     }
 
-    async findOne(id: string): Promise<Player> {
+    async findOne(id: string): Promise<Player | null> {
         const player = await this.playersRepository.findOne({
             where: {
                 id,
             },
             relations: {
-                game: true,
+               user: true,
             },
         })
-        if (!player) {
-            throw new NotFoundException()
-        }
 
-        return player
+        return player || null
     }
 
     async update(id: string, updatePlayerDto: UpdatePlayerDto) {
@@ -88,7 +92,7 @@ export class PlayersService {
         })
     }
 
-    private generateUsername(): string {
+    generateUsername(): string {
         return `player_${(new Date()).getTime()}`
     }
 }

@@ -1,7 +1,6 @@
 import {
     Controller,
     Get,
-    Post,
     Put,
     Delete,
     Body,
@@ -13,11 +12,10 @@ import { Response } from 'express'
 
 import { BaseController } from '@/modules/_base/base.controller'
 import { UsersService } from './users.service'
-import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
-import { RolesGuard } from '../../common/guards/role.guard'
-import { Roles } from '../../common/decorators/role.decorator'
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard'
+import { RolesGuard } from '@/common/guards/role.guard'
+import { Roles } from '@/common/decorators/role.decorator'
 import { Role } from '../auth/types/auth.constants'
 
 @Controller('users')
@@ -41,20 +39,13 @@ export class UsersController extends BaseController {
     }
 
     @Get('/:id')
+    @Roles(Role.ADMIN)
+    @UseGuards(RolesGuard)
     async findOne(
         @Res() response: Response,
         @Param('id') id: string
     ): Promise<Response> {
         const user = await this.userService.findOne(id)
-        return this.result(response, user)
-    }
-
-    @Post()
-    async create(
-        @Res() response: Response,
-        @Body() createUserDto: CreateUserDto
-    ) {
-        const user = await this.userService.create(createUserDto)
         return this.result(response, user)
     }
 

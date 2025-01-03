@@ -5,14 +5,13 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToOne,
-    JoinColumn,
     BeforeInsert,
     BeforeUpdate,
 } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 
-import { Player } from '../../players/entities/player.entity'
-import { Role } from '../../auth/types/auth.constants'
+import { Role } from '@/modules/auth/types/auth.constants'
+import { Player } from '@/modules/players/entities/player.entity'
 
 @Entity()
 export class User {
@@ -28,16 +27,8 @@ export class User {
     })
     email: string
 
-    @OneToOne(
-        () => Player,
-        player => player.user,
-        {
-            eager: true,
-            onDelete: 'CASCADE',
-            cascade: true,
-        }
-    )
-    @JoinColumn()
+
+    @OneToOne(() => Player, player => player.user, { eager: true })
     player: Player
 
     @Column({

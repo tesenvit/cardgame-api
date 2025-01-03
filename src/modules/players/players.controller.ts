@@ -9,10 +9,10 @@ import {
 } from '@nestjs/common'
 import { Response } from 'express'
 
-import { PlayersService } from './players.service'
-import { UpdatePlayerDto } from './dto/update-player.dto'
+import { PlayersService } from '@/modules/players/players.service'
+import { UpdatePlayerDto } from '@/modules/players/dto/update-player.dto'
 import { BaseController } from '@/modules/_base/base.controller'
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard'
 
 @Controller('players')
 @UseGuards(JwtAuthGuard)

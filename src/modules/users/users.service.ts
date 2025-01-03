@@ -1,15 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
+import { AsyncLocalStorage } from 'async_hooks'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
+import { CreateUserDto } from '@/modules/users/dto/create-user.dto'
+import { UpdateUserDto } from '@/modules/users/dto/update-user.dto'
 import { BadRequestException } from '@/common/exceptions/bad-request.exception'
-import { User } from './entities/user.entity'
-import { AsyncLocalStorage } from 'async_hooks'
-import { AuthTokenStore } from '../als/types/als.interface'
-import { PlayersService } from '../players/players.service'
-import { Role } from '../auth/types/auth.constants'
+import { User } from '@/modules/users/entities/user.entity'
+import { Player } from '@/modules/players/entities/player.entity'
+import { AuthTokenStore } from '@/modules/als/types/als.interface'
+import { PlayersService } from '@/modules/players/players.service'
+import { EmailExist } from '@/common/exceptions/errors'
+import { Role } from '@/modules/auth/types/auth.constants'
 
 @Injectable()
 export class UsersService {
@@ -28,12 +30,7 @@ export class UsersService {
 
     async findOne(id: string): Promise<User | null> {
         const user = await this.usersRepository.findOne({
-            where: {
-                id,
-            },
-            relations: {
-                player: true,
-            },
+            where: { id },
         })
 
         return user || null
@@ -43,24 +40,18 @@ export class UsersService {
         return this.usersRepository.find()
     }
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
-        const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email })
-        if (existingUser) {
-            throw new BadRequestException({ email: 'Email address already exists' })
+    async create(createUserDto: CreateUserDto, player: Player): Promise<User> {
+        const exist = await this.usersRepository.findOneBy({ email: createUserDto.email })
+        if (exist) {
+            throw new BadRequestException(EmailExist)
         }
 
         const user = this.usersRepository.create({
             password: createUserDto.password,
             email: createUserDto.email,
             role: Role.USER,
+            player,
         })
-
-        const player = await this.playersService.create({
-            username: createUserDto.username || null,
-        })
-
-        user.player = player
-        player.user = user
 
         return await this.usersRepository.save(user)
     }
